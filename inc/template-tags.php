@@ -218,20 +218,81 @@ function native_leads_dashboard_cta() {
 }
 
 /**
- * Default links for the primary and footer menus until a menu is assigned
- * in Appearance → Menus: home plus the front page's sections.
+ * The logo mark: an "N" whose last stroke ends in a dot, a lead arriving.
+ * Drawn on a 24px grid; the tile behind it comes from CSS (.brand__mark).
+ *
+ * @param string $class Extra class names.
+ * @return string Markup, safe to echo.
+ */
+function native_leads_logo_mark( $class = '' ) {
+	return '<svg class="brand__mark ' . esc_attr( $class ) . '" viewBox="0 0 24 24" aria-hidden="true">'
+		. '<path class="brand__n" d="M6 18.5V6.5l11 11.2" />'
+		. '<path class="brand__stem" d="M17 17.7V12.4" />'
+		. '<circle class="dot" cx="17" cy="6.9" r="2.3" />'
+		. '</svg>';
+}
+
+/**
+ * A published page by its slug, or null. Used for the footer's company links
+ * until a menu is assigned.
+ *
+ * @param string $path Page slug.
+ * @return WP_Post|null
+ */
+function native_leads_page( $path ) {
+	$page = get_page_by_path( $path );
+	return ( $page && 'publish' === $page->post_status ) ? $page : null;
+}
+
+/**
+ * The static pages linked from the footer: About, Contact, Terms, Privacy.
+ *
+ * @return array<int,array{0:string,1:string,2:bool}> url, label, is current.
+ */
+function native_leads_company_links() {
+	$links = array();
+	foreach ( array( 'about-us', 'contact-us', 'term-and-conditions', 'terms-and-conditions' ) as $slug ) {
+		$page = native_leads_page( $slug );
+		if ( $page ) {
+			$links[] = array( get_permalink( $page ), get_the_title( $page ), is_page( $page->ID ) );
+		}
+	}
+	$privacy_id = (int) get_option( 'wp_page_for_privacy_policy' );
+	if ( $privacy_id && 'publish' === get_post_status( $privacy_id ) ) {
+		$links[] = array( get_permalink( $privacy_id ), get_the_title( $privacy_id ), is_page( $privacy_id ) );
+	}
+	return $links;
+}
+
+/**
+ * Default links for the menus until a menu is assigned in Appearance →
+ * Menus: the front page's sections, plus About / Contact in the header and
+ * the company pages in the footer's "Company" column.
  *
  * @param array $args wp_nav_menu() arguments.
  */
 function native_leads_menu_fallback( $args ) {
-	$links = array(
-		array( home_url( '/' ), __( 'Home', 'native-leads' ), is_front_page() ),
-		array( home_url( '/#features' ), __( 'Features', 'native-leads' ), false ),
-		array( home_url( '/#how-it-works' ), __( 'How it works', 'native-leads' ), false ),
-		array( home_url( '/#security' ), __( 'Security', 'native-leads' ), false ),
-	);
-	if ( 'footer' === $args['theme_location'] && native_leads_dashboard_page_url() ) {
-		$links[] = array( native_leads_dashboard_page_url(), __( 'Dashboard', 'native-leads' ), false );
+	if ( 'footer-company' === $args['theme_location'] ) {
+		$links = native_leads_company_links();
+	} else {
+		$links = array(
+			array( home_url( '/' ), __( 'Home', 'native-leads' ), is_front_page() ),
+			array( home_url( '/#features' ), __( 'Features', 'native-leads' ), false ),
+			array( home_url( '/#how-it-works' ), __( 'How it works', 'native-leads' ), false ),
+		);
+		foreach ( array( 'about-us', 'contact-us' ) as $slug ) {
+			$page = native_leads_page( $slug );
+			if ( $page ) {
+				$links[] = array( get_permalink( $page ), get_the_title( $page ), is_page( $page->ID ) );
+			}
+		}
+		if ( 'footer' === $args['theme_location'] ) {
+			$links   = array_slice( $links, 0, 3 );
+			$links[] = array( home_url( '/#faq' ), __( 'FAQ', 'native-leads' ), false );
+			if ( native_leads_dashboard_page_url() ) {
+				$links[] = array( native_leads_dashboard_page_url(), __( 'Dashboard', 'native-leads' ), false );
+			}
+		}
 	}
 
 	echo '<ul' . ( $args['menu_id'] ? ' id="' . esc_attr( $args['menu_id'] ) . '"' : '' ) . ' class="' . esc_attr( $args['menu_class'] ) . '">';

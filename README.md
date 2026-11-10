@@ -33,7 +33,7 @@ Create a page (e.g. "Dashboard"), choose the **Leads Dashboard** template and pu
 
 ## Design
 
-Deep ink with a mint accent, taken from the `invest` landing page. It has light and dark modes and remembers each viewer's choice. Fonts are Inter, Tajawal (Arabic) and JetBrains Mono.
+Built around the brand colour **#215073** (deep steel blue) with a tonal scale, a deep-blue sidebar and a split-screen sign-in. Light is the default; dark mode is one click away and remembers each viewer's choice. Fonts are Plus Jakarta Sans (headings), Inter, Tajawal (Arabic) and JetBrains Mono.
 
 | File | Purpose |
 | --- | --- |

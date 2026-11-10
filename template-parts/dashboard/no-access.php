@@ -7,8 +7,9 @@
 
 ?>
 <main class="auth">
-	<div class="auth__grid" aria-hidden="true"></div>
-	<div class="auth__glow" aria-hidden="true"></div>
+	<?php get_template_part( 'template-parts/dashboard/auth-aside' ); ?>
+
+	<div class="auth__main">
 
 	<section class="auth__card">
 		<?php get_template_part( 'template-parts/dashboard/brand' ); ?>
@@ -25,4 +26,5 @@
 		</p>
 		<a class="btn btn--ghost btn--block" href="<?php echo esc_url( wp_logout_url( home_url( '/' ) ) ); ?>"><?php esc_html_e( 'Sign out', 'native-leads' ); ?></a>
 	</section>
+	</div>
 </main>

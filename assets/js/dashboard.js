@@ -12,7 +12,7 @@
 
 	document.querySelectorAll( '[data-theme-toggle]' ).forEach( function ( btn ) {
 		btn.addEventListener( 'click', function () {
-			var next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+			var next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
 			document.documentElement.dataset.theme = next;
 			try {
 				localStorage.setItem( 'native-leads-theme', next );

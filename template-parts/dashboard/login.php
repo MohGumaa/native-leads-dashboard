@@ -10,8 +10,9 @@ $native_leads_failed    = isset( $_GET['login'] ) && 'failed' === $_GET['login']
 $native_leads_dashboard = native_leads_dashboard_page_url();
 ?>
 <main class="auth">
-	<div class="auth__grid" aria-hidden="true"></div>
-	<div class="auth__glow" aria-hidden="true"></div>
+	<?php get_template_part( 'template-parts/dashboard/auth-aside' ); ?>
+
+	<div class="auth__main">
 
 	<section class="auth__card">
 		<?php get_template_part( 'template-parts/dashboard/brand' ); ?>
@@ -45,4 +46,5 @@ $native_leads_dashboard = native_leads_dashboard_page_url();
 	</section>
 
 	<p class="auth__foot"><a href="<?php echo esc_url( home_url( '/' ) ); ?>">&larr; <?php esc_html_e( 'Back to site', 'native-leads' ); ?></a> &nbsp;·&nbsp; &copy; <?php echo esc_html( wp_date( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?></p>
+	</div>
 </main>

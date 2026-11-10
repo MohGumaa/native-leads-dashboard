@@ -11,6 +11,8 @@ $nl_user = wp_get_current_user();
 if ( ! native_leads_table_exists() ) :
 	?>
 	<main class="auth">
+		<?php get_template_part( 'template-parts/dashboard/auth-aside' ); ?>
+		<div class="auth__main">
 		<section class="auth__card">
 			<?php get_template_part( 'template-parts/dashboard/brand' ); ?>
 			<h1><?php esc_html_e( 'Leads table not found', 'native-leads' ); ?></h1>
@@ -24,6 +26,7 @@ if ( ! native_leads_table_exists() ) :
 				?>
 			</p>
 		</section>
+		</div>
 	</main>
 	<?php
 	return;
@@ -190,6 +193,16 @@ foreach ( $daily as $count ) {
 	++$i;
 }
 $line_path = 'M' . implode( ' L', $points );
+
+// Sparkline for the hero KPI: the same days, on a 120×36 box.
+$spark = array();
+$i     = 0;
+foreach ( $daily as $count ) {
+	$spark[] = round( $day_count > 1 ? $i / ( $day_count - 1 ) * 120 : 60, 1 ) . ',' . round( 33 - $count / max( 1, $daily_max ) * 30, 1 );
+	++$i;
+}
+$spark_line = 'M' . implode( ' L', $spark );
+$spark_area = $spark_line . ' L120,36 L0,36 Z';
 $area_path = $line_path . ' L' . round( ( $day_count - 0.5 ) / $day_count * 1000, 2 ) . ',200 L' . round( 0.5 / $day_count * 1000, 2 ) . ',200 Z';
 
 /* ---------- CRM delivery ---------- */
@@ -298,7 +311,7 @@ $active_chips = array(
 					);
 					?>
 				</p>
-				<h1><?php esc_html_e( 'Leads overview', 'native-leads' ); ?></h1>
+				<h1><?php esc_html_e( 'Leads overview', 'native-leads' ); ?> <span class="mainbar__date"><?php echo esc_html( mysql2date( 'l, F j', $now->format( 'Y-m-d H:i:s' ) ) ); ?></span></h1>
 			</div>
 
 			<div class="mainbar__range">
@@ -358,6 +371,10 @@ $active_chips = array(
 							?>
 						</span>
 					</p>
+					<svg class="kpi__spark" viewBox="0 0 120 36" preserveAspectRatio="none" aria-hidden="true">
+						<path class="kpi__spark-area" d="<?php echo esc_attr( $spark_area ); ?>" />
+						<path class="kpi__spark-line" d="<?php echo esc_attr( $spark_line ); ?>" />
+					</svg>
 				</article>
 				<article class="kpi">
 					<h2 class="kpi__label"><?php echo native_leads_icon( 'sun' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><?php esc_html_e( 'Today', 'native-leads' ); ?></h2>

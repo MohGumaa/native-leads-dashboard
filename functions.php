@@ -9,7 +9,7 @@
 
 if ( ! defined( '_S_VERSION' ) ) {
 	// Replace the version number of the theme on each release.
-	define( '_S_VERSION', '1.0.0' );
+	define( '_S_VERSION', '1.2.0' );
 }
 
 /**
@@ -50,9 +50,13 @@ function native_leads_setup() {
 	register_nav_menus(
 		array(
 			'menu-1' => esc_html__( 'Primary', 'native-leads' ),
-			'footer' => esc_html__( 'Footer', 'native-leads' ),
+			'footer'         => esc_html__( 'Footer', 'native-leads' ),
+			'footer-company' => esc_html__( 'Footer: Company', 'native-leads' ),
 		)
 	);
+
+	// Pages use the excerpt as the lead line under their title.
+	add_post_type_support( 'page', 'excerpt' );
 
 	// Block content: core block styles, wide/full images, responsive embeds.
 	add_theme_support( 'wp-block-styles' );
@@ -135,7 +139,7 @@ function native_leads_scripts() {
 	$uri = get_template_directory_uri();
 
 	// Tokens, buttons and brand shared by the dashboard and the public site.
-	wp_enqueue_style( 'native-leads-fonts', 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Tajawal:wght@400;500;700&display=swap', array(), null ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+	wp_enqueue_style( 'native-leads-fonts', 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Tajawal:wght@400;500;700&display=swap', array(), null ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 	wp_enqueue_style( 'native-leads-base', $uri . '/assets/css/base.css', array( 'native-leads-fonts' ), _S_VERSION );
 
 	// The leads dashboard page (or its sign-in screen) is a full-screen app.
@@ -159,7 +163,7 @@ add_action( 'wp_enqueue_scripts', 'native_leads_scripts' );
  */
 function native_leads_theme_boot() {
 	?>
-	<meta name="color-scheme" content="dark light">
+	<meta name="color-scheme" content="light dark">
 	<script>
 		document.documentElement.classList.add( 'js' );
 		try { var t = localStorage.getItem( 'native-leads-theme' ); if ( t ) { document.documentElement.dataset.theme = t; } } catch ( e ) {}
@@ -167,6 +171,82 @@ function native_leads_theme_boot() {
 	<?php
 }
 add_action( 'wp_head', 'native_leads_theme_boot', 0 );
+
+/**
+ * Logo mark as the browser-tab icon until a Site Icon is set in the Customizer.
+ */
+function native_leads_favicon() {
+	if ( has_site_icon() ) {
+		return;
+	}
+	printf( '<link rel="icon" type="image/svg+xml" href="%s">' . "
+", esc_url( get_template_directory_uri() . '/assets/img/logo-mark.svg' ) );
+}
+add_action( 'wp_head', 'native_leads_favicon', 2 );
+
+/**
+ * Give every h2 in page content an id, so the page's table of contents
+ * can link to it. Existing ids are kept.
+ *
+ * @param string $content Post content.
+ */
+function native_leads_heading_ids( $content ) {
+	if ( ! is_page() || ! in_the_loop() || ! is_main_query() ) {
+		return $content;
+	}
+	$used = array();
+	return preg_replace_callback(
+		'/<h2(\s[^>]*)?>(.*?)<\/h2>/is',
+		static function ( $m ) use ( &$used ) {
+			$attrs = isset( $m[1] ) ? $m[1] : '';
+			if ( preg_match( '/\sid=/i', $attrs ) ) {
+				return $m[0];
+			}
+			$id = sanitize_title( wp_strip_all_tags( $m[2] ) );
+			$id = $id ? $id : 'section';
+			$base = $id;
+			$n    = 2;
+			while ( isset( $used[ $id ] ) ) {
+				$id = $base . '-' . $n++;
+			}
+			$used[ $id ] = true;
+			return '<h2 id="' . esc_attr( $id ) . '"' . $attrs . '>' . $m[2] . '</h2>';
+		},
+		$content
+	);
+}
+add_filter( 'the_content', 'native_leads_heading_ids', 20 );
+
+/**
+ * h2 headings of a page, for its table of contents.
+ *
+ * @param int $post_id Page ID.
+ * @return array<int,array{id:string,title:string}>
+ */
+function native_leads_page_toc( $post_id ) {
+	$content = get_post_field( 'post_content', $post_id );
+	if ( ! preg_match_all( '/<h2(?:\s[^>]*)?>(.*?)<\/h2>/is', $content, $m ) ) {
+		return array();
+	}
+	$toc  = array();
+	$used = array();
+	foreach ( $m[1] as $title ) {
+		$text = trim( wp_strip_all_tags( $title ) );
+		$id   = sanitize_title( $text );
+		$id   = $id ? $id : 'section';
+		$base = $id;
+		$n    = 2;
+		while ( isset( $used[ $id ] ) ) {
+			$id = $base . '-' . $n++;
+		}
+		$used[ $id ] = true;
+		$toc[]       = array(
+			'id'    => $id,
+			'title' => $text,
+		);
+	}
+	return $toc;
+}
 
 /**
  * Implement the Custom Header feature.
