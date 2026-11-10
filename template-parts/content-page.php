@@ -1,6 +1,6 @@
 <?php
 /**
- * Template part for displaying page content in page.php
+ * Template part: page content in page.php.
  *
  * @link https://developer.wordpress.org/themes/basics/template-hierarchy/
  *
@@ -9,46 +9,49 @@
 
 ?>
 
-<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
-	<header class="entry-header">
-		<?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
-	</header><!-- .entry-header -->
-
-	<?php native_leads_post_thumbnail(); ?>
-
-	<div class="entry-content">
-		<?php
-		the_content();
-
-		wp_link_pages(
-			array(
-				'before' => '<div class="page-links">' . esc_html__( 'Pages:', 'native-leads' ),
-				'after'  => '</div>',
-			)
-		);
-		?>
-	</div><!-- .entry-content -->
-
-	<?php if ( get_edit_post_link() ) : ?>
-		<footer class="entry-footer">
+<article id="post-<?php the_ID(); ?>" <?php post_class( 'entry' ); ?>>
+	<header class="page-hero page-hero--entry">
+		<div class="container container--narrow">
 			<?php
-			edit_post_link(
-				sprintf(
-					wp_kses(
-						/* translators: %s: Name of current post. Only visible to screen readers */
-						__( 'Edit <span class="screen-reader-text">%s</span>', 'native-leads' ),
-						array(
-							'span' => array(
-								'class' => array(),
-							),
-						)
-					),
-					wp_kses_post( get_the_title() )
-				),
-				'<span class="edit-link">',
-				'</span>'
+			$native_leads_parent = wp_get_post_parent_id( get_the_ID() );
+			if ( $native_leads_parent ) :
+				?>
+				<a class="back-link" href="<?php echo esc_url( get_permalink( $native_leads_parent ) ); ?>">
+					<?php echo native_leads_icon( 'back' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php echo esc_html( get_the_title( $native_leads_parent ) ); ?>
+				</a>
+			<?php endif; ?>
+			<?php the_title( '<h1 class="page-hero__title">', '</h1>' ); ?>
+			<?php if ( has_excerpt() ) : ?>
+				<p class="page-hero__lead muted"><?php echo esc_html( get_the_excerpt() ); ?></p>
+			<?php endif; ?>
+		</div>
+	</header>
+
+	<?php if ( has_post_thumbnail() && ! post_password_required() ) : ?>
+		<figure class="container entry__cover">
+			<?php the_post_thumbnail( 'full' ); ?>
+		</figure>
+	<?php endif; ?>
+
+	<div class="container container--narrow">
+		<div class="prose">
+			<?php
+			the_content();
+
+			wp_link_pages(
+				array(
+					'before' => '<nav class="page-links">' . esc_html__( 'Pages:', 'native-leads' ),
+					'after'  => '</nav>',
+				)
 			);
 			?>
-		</footer><!-- .entry-footer -->
-	<?php endif; ?>
+		</div>
+
+		<?php if ( get_edit_post_link() ) : ?>
+			<footer class="entry__footer">
+				<?php edit_post_link( esc_html__( 'Edit page', 'native-leads' ), '<span class="edit-link">', '</span>' ); ?>
+			</footer>
+		<?php endif; ?>
+	</div>
 </article><!-- #post-<?php the_ID(); ?> -->

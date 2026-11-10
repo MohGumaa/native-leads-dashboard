@@ -1,0 +1,212 @@
+/* Native Leads – shared design system: tokens, base, brand, buttons.
+   Deep ink + mint, taken from the invest landing page. Dark is the default
+   look; [data-theme="light"] switches every token, components only use tokens.
+   Loaded on every screen; dashboard.css and site.css build on it. */
+
+:root {
+	--bg: #06121c;
+	--bg-glow: rgba(45, 212, 167, 0.08);
+	--surface: #0c1c29;
+	--surface-2: #102434;
+	--surface-hover: #142b3e;
+	--sidebar: #081722;
+	--border: rgba(178, 230, 222, 0.08);
+	--border-strong: rgba(178, 230, 222, 0.16);
+
+	--text: #ecf6f4;
+	--muted: #93aab0;
+	--faint: #637c84;
+
+	--accent: #2dd4a7;
+	--accent-ink: #5eead4;          /* accent text on dark */
+	--accent-soft: rgba(45, 212, 167, 0.12);
+	--accent-gradient: linear-gradient(135deg, #a7f3d0 0%, #2dd4a7 50%, #0f9f8a 100%);
+	--on-accent: #032720;
+	--bar: #22b996;                 /* chart marks, validated on --surface */
+	--bar-hover: #5eead4;
+	--focus: rgba(45, 212, 167, 0.4);
+
+	--up: #4ade80;
+	--down: #f87171;
+
+	/* CRM delivery states */
+	--c-sent: #4ade80;     --c-sent-bg: rgba(74, 222, 128, 0.13);
+	--c-pending: #fbbf24;  --c-pending-bg: rgba(251, 191, 36, 0.13);
+	--c-failed: #f87171;   --c-failed-bg: rgba(248, 113, 113, 0.14);
+	--c-off: #94a3b8;      --c-off-bg: rgba(148, 163, 184, 0.14);
+
+	/* Kept for the illustrative pipeline on the public front page. */
+	--s-new: #7dd3fc;        --s-new-bg: rgba(56, 189, 248, 0.14);
+	--s-contacted: #c4b5fd;  --s-contacted-bg: rgba(167, 139, 250, 0.15);
+	--s-qualified: #fcd34d;  --s-qualified-bg: rgba(252, 211, 77, 0.14);
+	--s-converted: #5eead4;  --s-converted-bg: rgba(45, 212, 167, 0.14);
+	--s-lost: #a3acbd;       --s-lost-bg: rgba(163, 172, 189, 0.14);
+
+	--shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 10px 30px rgba(0, 0, 0, 0.22);
+	--shadow-pop: 0 24px 64px rgba(0, 0, 0, 0.5);
+
+	--font: "Inter", "Tajawal", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+	--mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+	--radius: 16px;
+	--radius-sm: 10px;
+	--control: 40px;
+
+	color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+	--bg: #eef4f4;
+	--bg-glow: rgba(45, 212, 167, 0.14);
+	--surface: #ffffff;
+	--surface-2: #f4f8f8;
+	--surface-hover: #eef5f4;
+	--sidebar: #ffffff;
+	--border: #dfe8e8;
+	--border-strong: #c8d6d6;
+
+	--text: #0a1f2b;
+	--muted: #4f6670;
+	--faint: #84979e;
+
+	--accent-ink: #0f766e;
+	--accent-soft: rgba(20, 184, 150, 0.12);
+	--bar: #0f9f8a;
+	--bar-hover: #0f766e;
+	--focus: rgba(15, 159, 138, 0.3);
+
+	--up: #059669;
+	--down: #dc2626;
+
+	--c-sent: #047857;     --c-sent-bg: #e0f5ec;
+	--c-pending: #a16207;  --c-pending-bg: #fdf3dc;
+	--c-failed: #b91c1c;   --c-failed-bg: #fde8e8;
+	--c-off: #475569;      --c-off-bg: #eceff3;
+
+	--s-new: #0369a1;        --s-new-bg: #e0f2fe;
+	--s-contacted: #6d28d9;  --s-contacted-bg: #f1eafd;
+	--s-qualified: #a16207;  --s-qualified-bg: #fdf3e2;
+	--s-converted: #0f766e;  --s-converted-bg: #dcf5ef;
+	--s-lost: #4b5563;       --s-lost-bg: #eceef1;
+
+	--shadow: 0 1px 2px rgba(10, 31, 43, 0.05), 0 8px 24px rgba(10, 31, 43, 0.06);
+	--shadow-pop: 0 24px 64px rgba(10, 31, 43, 0.2);
+
+	color-scheme: light;
+}
+
+/* ---------- base ---------- */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body.native-leads-app {
+	margin: 0;
+	min-height: 100vh;
+	background:
+		radial-gradient(900px 520px at 100% -10%, var(--bg-glow), transparent 60%),
+		radial-gradient(700px 420px at 0% 110%, var(--bg-glow), transparent 60%),
+		var(--bg);
+	background-attachment: fixed;
+	color: var(--text);
+	font: 400 14px/1.5 var(--font);
+	-webkit-font-smoothing: antialiased;
+}
+
+.native-leads-app a { color: inherit; text-decoration: none; }
+.native-leads-app h1,
+.native-leads-app h2,
+.native-leads-app h3,
+.native-leads-app p { margin: 0; }
+/* UI icons only; SVGs inside post content (.prose) keep their own sizing. */
+.native-leads-app svg:where(:not(.prose svg)) { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.native-leads-app :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.muted { color: var(--muted); }
+.faint { color: var(--faint); }
+.mono { font-family: var(--mono); }
+.screen-reader-text {
+	position: absolute !important; width: 1px; height: 1px; overflow: hidden;
+	clip: rect(1px, 1px, 1px, 1px); white-space: nowrap;
+}
+[hidden] { display: none !important; }
+
+/* ---------- brand ---------- */
+
+.brand { display: inline-flex; align-items: center; gap: 10px; }
+.brand__mark { width: 34px !important; height: 34px !important; padding: 7px; border-radius: 11px; background: var(--accent-gradient); color: var(--on-accent); stroke: var(--on-accent) !important; stroke-width: 2.4 !important; box-shadow: 0 6px 20px rgba(45, 212, 167, 0.28); }
+.brand__mark .dot { fill: var(--on-accent); stroke: none; }
+.brand__text { display: flex; flex-direction: column; line-height: 1.15; }
+.brand__text strong { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+.brand__text small { font-size: 10.5px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* ---------- buttons & controls ---------- */
+
+.btn {
+	display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+	height: var(--control); padding: 0 16px;
+	border: 1px solid transparent; border-radius: 12px;
+	font: 600 13.5px/1 var(--font); cursor: pointer; white-space: nowrap;
+	transition: transform 0.15s, box-shadow 0.15s, background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+.btn svg { width: 16px; height: 16px; }
+.btn--primary { background: var(--accent-gradient); color: var(--on-accent) !important; box-shadow: 0 8px 22px rgba(45, 212, 167, 0.22); }
+.btn--primary:hover { transform: translateY(-1px); box-shadow: 0 12px 28px rgba(45, 212, 167, 0.32); }
+.btn--ghost { background: var(--surface-2); border-color: var(--border-strong); color: var(--text); }
+.btn--ghost:hover { border-color: var(--accent); color: var(--accent-ink); }
+.btn--sm { height: 34px; padding: 0 13px; font-size: 13px; border-radius: 10px; }
+.btn--block { width: 100%; height: 46px; font-size: 15px; }
+
+.icon-btn {
+	display: inline-grid; place-items: center; width: 36px; height: 36px;
+	border: 1px solid var(--border); border-radius: 10px; background: transparent;
+	color: var(--muted); cursor: pointer; transition: color 0.15s, border-color 0.15s, background-color 0.15s;
+}
+.icon-btn:hover { color: var(--accent-ink); border-color: var(--accent); background: var(--accent-soft); }
+
+.avatar {
+	display: inline-grid; place-items: center; flex: none;
+	width: 36px; height: 36px; border-radius: 11px;
+	background: var(--accent-soft); color: var(--accent-ink);
+	border: 1px solid rgba(45, 212, 167, 0.25);
+	font: 700 13px/1 var(--font); letter-spacing: 0.02em;
+}
+.avatar--sm { width: 30px; height: 30px; font-size: 11.5px; border-radius: 9px; }
+.avatar--lg { width: 54px; height: 54px; font-size: 19px; border-radius: 15px; }
+
+/* ---------- badges & trend pills ---------- */
+
+.badge {
+	display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 8px; border-radius: 999px;
+	font-size: 12px; font-weight: 600; white-space: nowrap;
+	color: var(--c-off); background: var(--c-off-bg);
+}
+.badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.badge--sent { color: var(--c-sent); background: var(--c-sent-bg); }
+.badge--pending { color: var(--c-pending); background: var(--c-pending-bg); }
+.badge--failed { color: var(--c-failed); background: var(--c-failed-bg); }
+.badge--new { color: var(--s-new); background: var(--s-new-bg); }
+.badge--contacted { color: var(--s-contacted); background: var(--s-contacted-bg); }
+.badge--qualified { color: var(--s-qualified); background: var(--s-qualified-bg); }
+.badge--converted { color: var(--s-converted); background: var(--s-converted-bg); }
+
+.kpi__note { color: var(--faint); }
+.trend { display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 999px; font-weight: 600; font-size: 11.5px; }
+.trend span { font-size: 8px; }
+.trend--up { color: var(--up); background: color-mix(in srgb, var(--up) 14%, transparent); }
+.trend--down { color: var(--down); background: color-mix(in srgb, var(--down) 14%, transparent); }
+.trend--flat { color: var(--muted); background: var(--surface-2); }
+
+/* ---------- theme switch ---------- */
+
+[data-theme-toggle] .i-moon { display: none; }
+:root[data-theme="light"] [data-theme-toggle] .i-sun { display: none; }
+:root[data-theme="light"] [data-theme-toggle] .i-moon { display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after { animation: none !important; transition: none !important; }
+}

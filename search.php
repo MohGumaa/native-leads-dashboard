@@ -1,6 +1,6 @@
 <?php
 /**
- * The template for displaying search results pages
+ * The template for search results.
  *
  * @link https://developer.wordpress.org/themes/basics/template-hierarchy/#search-result
  *
@@ -12,42 +12,47 @@ get_header();
 
 	<main id="primary" class="site-main">
 
-		<?php if ( have_posts() ) : ?>
-
-			<header class="page-header">
-				<h1 class="page-title">
+		<header class="page-hero">
+			<div class="container container--narrow">
+				<p class="eyebrow"><?php esc_html_e( 'Search', 'native-leads' ); ?></p>
+				<h1 class="page-hero__title">
 					<?php
 					/* translators: %s: search query. */
-					printf( esc_html__( 'Search Results for: %s', 'native-leads' ), '<span>' . get_search_query() . '</span>' );
+					printf( esc_html__( 'Results for %s', 'native-leads' ), '<span class="text-accent">“' . get_search_query() . '”</span>' );
 					?>
 				</h1>
-			</header><!-- .page-header -->
+				<p class="page-hero__count">
+					<?php
+					/* translators: %s: number of results */
+					echo esc_html( sprintf( _n( '%s result', '%s results', (int) $wp_query->found_posts, 'native-leads' ), number_format_i18n( $wp_query->found_posts ) ) );
+					?>
+				</p>
+				<?php get_search_form(); ?>
+			</div>
+		</header>
 
-			<?php
-			/* Start the Loop */
-			while ( have_posts() ) :
-				the_post();
+		<div class="container container--narrow section section--tight">
+			<?php if ( have_posts() ) : ?>
 
-				/**
-				 * Run the loop for the search to output the results.
-				 * If you want to overload this in a child theme then include a file
-				 * called content-search.php and that will be used instead.
-				 */
-				get_template_part( 'template-parts/content', 'search' );
+				<div class="result-list">
+					<?php
+					while ( have_posts() ) :
+						the_post();
+						get_template_part( 'template-parts/content', 'search' );
+					endwhile;
+					?>
+				</div>
 
-			endwhile;
+				<?php native_leads_pagination(); ?>
 
-			the_posts_navigation();
+			<?php else : ?>
 
-		else :
+				<?php get_template_part( 'template-parts/content', 'none' ); ?>
 
-			get_template_part( 'template-parts/content', 'none' );
-
-		endif;
-		?>
+			<?php endif; ?>
+		</div>
 
 	</main><!-- #main -->
 
 <?php
-get_sidebar();
 get_footer();

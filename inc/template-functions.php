@@ -35,3 +35,49 @@ function native_leads_pingback_header() {
 	}
 }
 add_action( 'wp_head', 'native_leads_pingback_header' );
+
+/**
+ * Archive headers show the kind ("Category", "Tag"…) as an eyebrow above
+ * the title, so drop WordPress's "Category:" prefix from the title itself.
+ */
+add_filter( 'get_the_archive_title_prefix', '__return_empty_string' );
+
+/**
+ * WordPress ignores the #fragment when marking the current menu item, so
+ * every "/#section" link would be highlighted on the home page. Only the
+ * plain link should be.
+ *
+ * @param array   $classes Menu item classes.
+ * @param WP_Post $item    Menu item.
+ */
+function native_leads_menu_anchor_classes( $classes, $item ) {
+	if ( false !== strpos( $item->url, '#' ) ) {
+		$classes = array_diff( $classes, array( 'current-menu-item', 'current_page_item', 'current-menu-ancestor', 'current-menu-parent' ) );
+	}
+	return $classes;
+}
+add_filter( 'nav_menu_css_class', 'native_leads_menu_anchor_classes', 10, 2 );
+
+/**
+ * Same fix for the aria-current attribute.
+ *
+ * @param array   $atts Link attributes.
+ * @param WP_Post $item Menu item.
+ */
+function native_leads_menu_anchor_atts( $atts, $item ) {
+	if ( false !== strpos( $item->url, '#' ) ) {
+		unset( $atts['aria-current'] );
+	}
+	return $atts;
+}
+add_filter( 'nav_menu_link_attributes', 'native_leads_menu_anchor_atts', 10, 2 );
+
+/**
+ * Shorter "[…]" excerpt ending.
+ */
+add_filter(
+	'excerpt_more',
+	static function () {
+		return '…';
+	}
+);

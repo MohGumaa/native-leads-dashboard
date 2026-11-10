@@ -1,6 +1,6 @@
 <?php
 /**
- * The template for displaying 404 pages (not found)
+ * The template for 404 (not found) pages.
  *
  * @link https://codex.wordpress.org/Creating_an_Error_404_Page
  *
@@ -8,51 +8,58 @@
  */
 
 get_header();
+
+$native_leads_cta    = native_leads_dashboard_cta();
+$native_leads_recent = wp_get_recent_posts(
+	array(
+		'numberposts' => 3,
+		'post_status' => 'publish',
+	),
+	OBJECT
+);
 ?>
 
 	<main id="primary" class="site-main">
 
-		<section class="error-404 not-found">
-			<header class="page-header">
-				<h1 class="page-title"><?php esc_html_e( 'Oops! That page can&rsquo;t be found.', 'native-leads' ); ?></h1>
-			</header><!-- .page-header -->
+		<section class="not-found">
+			<div class="not-found__glow" aria-hidden="true"></div>
+			<div class="container container--narrow not-found__inner">
+				<p class="not-found__code" aria-hidden="true">404</p>
+				<h1 class="page-hero__title"><?php esc_html_e( 'This page went cold', 'native-leads' ); ?></h1>
+				<p class="page-hero__lead muted"><?php esc_html_e( 'The link may be old, or the page has moved. Search the site, or head somewhere useful.', 'native-leads' ); ?></p>
 
-			<div class="page-content">
-				<p><?php esc_html_e( 'It looks like nothing was found at this location. Maybe try one of the links below or a search?', 'native-leads' ); ?></p>
+				<?php get_search_form(); ?>
 
-					<?php
-					get_search_form();
+				<div class="not-found__actions">
+					<a class="btn btn--primary" href="<?php echo esc_url( home_url( '/' ) ); ?>">
+						<?php echo native_leads_icon( 'home' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php esc_html_e( 'Back to home', 'native-leads' ); ?>
+					</a>
+					<?php if ( $native_leads_cta ) : ?>
+						<a class="btn btn--ghost" href="<?php echo esc_url( $native_leads_cta['url'] ); ?>">
+							<?php echo native_leads_icon( 'chart' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							<?php echo esc_html( $native_leads_cta['label'] ); ?>
+						</a>
+					<?php endif; ?>
+				</div>
 
-					the_widget( 'WP_Widget_Recent_Posts' );
-					?>
-
-					<div class="widget widget_categories">
-						<h2 class="widget-title"><?php esc_html_e( 'Most Used Categories', 'native-leads' ); ?></h2>
+				<?php if ( $native_leads_recent ) : ?>
+					<div class="not-found__recent">
+						<h2 class="faint"><?php esc_html_e( 'Recent posts', 'native-leads' ); ?></h2>
 						<ul>
-							<?php
-							wp_list_categories(
-								array(
-									'orderby'    => 'count',
-									'order'      => 'DESC',
-									'show_count' => 1,
-									'title_li'   => '',
-									'number'     => 10,
-								)
-							);
-							?>
+							<?php foreach ( $native_leads_recent as $native_leads_post ) : ?>
+								<li>
+									<a href="<?php echo esc_url( get_permalink( $native_leads_post ) ); ?>">
+										<span><?php echo esc_html( get_the_title( $native_leads_post ) ); ?></span>
+										<?php echo native_leads_icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+									</a>
+								</li>
+							<?php endforeach; ?>
 						</ul>
-					</div><!-- .widget -->
-
-					<?php
-					/* translators: %1$s: smiley */
-					$native_leads_archive_content = '<p>' . sprintf( esc_html__( 'Try looking in the monthly archives. %1$s', 'native-leads' ), convert_smilies( ':)' ) ) . '</p>';
-					the_widget( 'WP_Widget_Archives', 'dropdown=1', "after_title=</h2>$native_leads_archive_content" );
-
-					the_widget( 'WP_Widget_Tag_Cloud' );
-					?>
-
-			</div><!-- .page-content -->
-		</section><!-- .error-404 -->
+					</div>
+				<?php endif; ?>
+			</div>
+		</section>
 
 	</main><!-- #main -->
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Template part for displaying posts
+ * Template part: post card, used in the blog index and archives.
  *
  * @link https://developer.wordpress.org/themes/basics/template-hierarchy/
  *
@@ -9,55 +9,36 @@
 
 ?>
 
-<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
-	<header class="entry-header">
-		<?php
-		if ( is_singular() ) :
-			the_title( '<h1 class="entry-title">', '</h1>' );
-		else :
-			the_title( '<h2 class="entry-title"><a href="' . esc_url( get_permalink() ) . '" rel="bookmark">', '</a></h2>' );
-		endif;
-
-		if ( 'post' === get_post_type() ) :
-			?>
-			<div class="entry-meta">
-				<?php
-				native_leads_posted_on();
-				native_leads_posted_by();
-				?>
-			</div><!-- .entry-meta -->
+<article id="post-<?php the_ID(); ?>" <?php post_class( 'post-card' ); ?>>
+	<a class="post-card__media" href="<?php the_permalink(); ?>" aria-hidden="true" tabindex="-1">
+		<?php if ( has_post_thumbnail() && ! post_password_required() ) : ?>
+			<?php the_post_thumbnail( 'medium_large', array( 'alt' => '' ) ); ?>
+		<?php else : ?>
+			<span class="post-card__placeholder"><?php echo native_leads_icon( 'doc' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 		<?php endif; ?>
-	</header><!-- .entry-header -->
+	</a>
 
-	<?php native_leads_post_thumbnail(); ?>
+	<div class="post-card__body">
+		<div class="post-card__top">
+			<?php if ( 'post' === get_post_type() ) : ?>
+				<?php native_leads_category_pill(); ?>
+			<?php endif; ?>
+			<?php if ( is_sticky() && is_home() && ! is_paged() ) : ?>
+				<span class="pill pill--accent"><?php esc_html_e( 'Featured', 'native-leads' ); ?></span>
+			<?php endif; ?>
+		</div>
 
-	<div class="entry-content">
-		<?php
-		the_content(
-			sprintf(
-				wp_kses(
-					/* translators: %s: Name of current post. Only visible to screen readers */
-					__( 'Continue reading<span class="screen-reader-text"> "%s"</span>', 'native-leads' ),
-					array(
-						'span' => array(
-							'class' => array(),
-						),
-					)
-				),
-				wp_kses_post( get_the_title() )
-			)
-		);
+		<?php the_title( '<h2 class="post-card__title"><a href="' . esc_url( get_permalink() ) . '" rel="bookmark">', '</a></h2>' ); ?>
 
-		wp_link_pages(
-			array(
-				'before' => '<div class="page-links">' . esc_html__( 'Pages:', 'native-leads' ),
-				'after'  => '</div>',
-			)
-		);
-		?>
-	</div><!-- .entry-content -->
+		<p class="post-card__excerpt muted"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 24 ) ); ?></p>
 
-	<footer class="entry-footer">
-		<?php native_leads_entry_footer(); ?>
-	</footer><!-- .entry-footer -->
+		<footer class="post-card__foot">
+			<time class="faint" datetime="<?php echo esc_attr( get_the_date( DATE_W3C ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
+			<a class="link-arrow" href="<?php the_permalink(); ?>">
+				<?php esc_html_e( 'Read', 'native-leads' ); ?>
+				<span class="screen-reader-text"><?php the_title(); ?></span>
+				<?php echo native_leads_icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			</a>
+		</footer>
+	</div>
 </article><!-- #post-<?php the_ID(); ?> -->

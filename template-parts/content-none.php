@@ -1,6 +1,6 @@
 <?php
 /**
- * Template part for displaying a message that posts cannot be found
+ * Template part: empty state when a list has no posts.
  *
  * @link https://developer.wordpress.org/themes/basics/template-hierarchy/
  *
@@ -9,43 +9,25 @@
 
 ?>
 
-<section class="no-results not-found">
-	<header class="page-header">
-		<h1 class="page-title"><?php esc_html_e( 'Nothing Found', 'native-leads' ); ?></h1>
-	</header><!-- .page-header -->
+<section class="empty-state">
+	<span class="empty-state__icon"><?php echo native_leads_icon( is_search() ? 'search' : 'doc' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 
-	<div class="page-content">
-		<?php
-		if ( is_home() && current_user_can( 'publish_posts' ) ) :
+	<?php if ( is_home() && current_user_can( 'publish_posts' ) ) : ?>
 
-			printf(
-				'<p>' . wp_kses(
-					/* translators: 1: link to WP admin new post page. */
-					__( 'Ready to publish your first post? <a href="%1$s">Get started here</a>.', 'native-leads' ),
-					array(
-						'a' => array(
-							'href' => array(),
-						),
-					)
-				) . '</p>',
-				esc_url( admin_url( 'post-new.php' ) )
-			);
+		<h2><?php esc_html_e( 'No posts yet', 'native-leads' ); ?></h2>
+		<p class="muted"><?php esc_html_e( 'Ready to publish your first post?', 'native-leads' ); ?></p>
+		<a class="btn btn--primary" href="<?php echo esc_url( admin_url( 'post-new.php' ) ); ?>"><?php esc_html_e( 'Write a post', 'native-leads' ); ?></a>
 
-		elseif ( is_search() ) :
-			?>
+	<?php elseif ( is_search() ) : ?>
 
-			<p><?php esc_html_e( 'Sorry, but nothing matched your search terms. Please try again with some different keywords.', 'native-leads' ); ?></p>
-			<?php
-			get_search_form();
+		<h2><?php esc_html_e( 'Nothing matched your search', 'native-leads' ); ?></h2>
+		<p class="muted"><?php esc_html_e( 'Try different or fewer keywords.', 'native-leads' ); ?></p>
 
-		else :
-			?>
+	<?php else : ?>
 
-			<p><?php esc_html_e( 'It seems we can&rsquo;t find what you&rsquo;re looking for. Perhaps searching can help.', 'native-leads' ); ?></p>
-			<?php
-			get_search_form();
+		<h2><?php esc_html_e( 'Nothing here yet', 'native-leads' ); ?></h2>
+		<p class="muted"><?php esc_html_e( 'We couldn’t find anything at this address. A search might help.', 'native-leads' ); ?></p>
+		<?php get_search_form(); ?>
 
-		endif;
-		?>
-	</div><!-- .page-content -->
-</section><!-- .no-results -->
+	<?php endif; ?>
+</section>

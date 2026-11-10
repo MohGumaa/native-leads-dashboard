@@ -1,11 +1,7 @@
 <?php
 /**
- * The main template file
- *
- * This is the most generic template file in a WordPress theme
- * and one of the two required files for a theme (the other being style.css).
- * It is used to display a page when nothing more specific matches a query.
- * E.g., it puts together the home page when no home.php file exists.
+ * The main template file: the blog index, and the fallback for any view
+ * without a more specific template.
  *
  * @link https://developer.wordpress.org/themes/basics/template-hierarchy/
  *
@@ -13,45 +9,42 @@
  */
 
 get_header();
+
+$native_leads_title = is_home() && ! is_front_page() ? single_post_title( '', false ) : __( 'Latest posts', 'native-leads' );
 ?>
 
 	<main id="primary" class="site-main">
 
-		<?php
-		if ( have_posts() ) :
+		<header class="page-hero">
+			<div class="container">
+				<p class="eyebrow"><?php esc_html_e( 'Blog', 'native-leads' ); ?></p>
+				<h1 class="page-hero__title"><?php echo esc_html( $native_leads_title ); ?></h1>
+				<p class="page-hero__lead muted"><?php esc_html_e( 'News, guides and updates from the team.', 'native-leads' ); ?></p>
+			</div>
+		</header>
 
-			if ( is_home() && ! is_front_page() ) :
-				?>
-				<header>
-					<h1 class="page-title screen-reader-text"><?php single_post_title(); ?></h1>
-				</header>
-				<?php
-			endif;
+		<div class="container section section--tight">
+			<?php if ( have_posts() ) : ?>
 
-			/* Start the Loop */
-			while ( have_posts() ) :
-				the_post();
+				<div class="post-grid">
+					<?php
+					while ( have_posts() ) :
+						the_post();
+						get_template_part( 'template-parts/content', get_post_type() );
+					endwhile;
+					?>
+				</div>
 
-				/*
-				 * Include the Post-Type-specific template for the content.
-				 * If you want to override this in a child theme, then include a file
-				 * called content-___.php (where ___ is the Post Type name) and that will be used instead.
-				 */
-				get_template_part( 'template-parts/content', get_post_type() );
+				<?php native_leads_pagination(); ?>
 
-			endwhile;
+			<?php else : ?>
 
-			the_posts_navigation();
+				<?php get_template_part( 'template-parts/content', 'none' ); ?>
 
-		else :
-
-			get_template_part( 'template-parts/content', 'none' );
-
-		endif;
-		?>
+			<?php endif; ?>
+		</div>
 
 	</main><!-- #main -->
 
 <?php
-get_sidebar();
 get_footer();

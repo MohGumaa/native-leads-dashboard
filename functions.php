@@ -50,8 +50,14 @@ function native_leads_setup() {
 	register_nav_menus(
 		array(
 			'menu-1' => esc_html__( 'Primary', 'native-leads' ),
+			'footer' => esc_html__( 'Footer', 'native-leads' ),
 		)
 	);
+
+	// Block content: core block styles, wide/full images, responsive embeds.
+	add_theme_support( 'wp-block-styles' );
+	add_theme_support( 'align-wide' );
+	add_theme_support( 'responsive-embeds' );
 
 	/*
 		* Switch default core markup for search form, comment form, and comments
@@ -67,18 +73,6 @@ function native_leads_setup() {
 			'caption',
 			'style',
 			'script',
-		)
-	);
-
-	// Set up the WordPress core custom background feature.
-	add_theme_support(
-		'custom-background',
-		apply_filters(
-			'native_leads_custom_background_args',
-			array(
-				'default-color' => 'ffffff',
-				'default-image' => '',
-			)
 		)
 	);
 
@@ -110,7 +104,7 @@ add_action( 'after_setup_theme', 'native_leads_setup' );
  * @global int $content_width
  */
 function native_leads_content_width() {
-	$GLOBALS['content_width'] = apply_filters( 'native_leads_content_width', 640 );
+	$GLOBALS['content_width'] = apply_filters( 'native_leads_content_width', 760 );
 }
 add_action( 'after_setup_theme', 'native_leads_content_width', 0 );
 
@@ -138,16 +132,41 @@ add_action( 'widgets_init', 'native_leads_widgets_init' );
  * Enqueue scripts and styles.
  */
 function native_leads_scripts() {
-	wp_enqueue_style( 'native-leads-style', get_stylesheet_uri(), array(), _S_VERSION );
-	wp_style_add_data( 'native-leads-style', 'rtl', 'replace' );
+	$uri = get_template_directory_uri();
 
-	wp_enqueue_script( 'native-leads-navigation', get_template_directory_uri() . '/js/navigation.js', array(), _S_VERSION, true );
+	// Tokens, buttons and brand shared by the dashboard and the public site.
+	wp_enqueue_style( 'native-leads-fonts', 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Tajawal:wght@400;500;700&display=swap', array(), null ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+	wp_enqueue_style( 'native-leads-base', $uri . '/assets/css/base.css', array( 'native-leads-fonts' ), _S_VERSION );
+
+	// The leads dashboard page (or its sign-in screen) is a full-screen app.
+	if ( native_leads_is_dashboard() ) {
+		wp_enqueue_style( 'native-leads-dashboard', $uri . '/assets/css/dashboard.css', array( 'native-leads-base' ), _S_VERSION );
+		wp_enqueue_script( 'native-leads-dashboard', $uri . '/assets/js/dashboard.js', array(), _S_VERSION, true );
+		return;
+	}
+
+	wp_enqueue_style( 'native-leads-site', $uri . '/assets/css/site.css', array( 'native-leads-base' ), _S_VERSION );
+	wp_enqueue_script( 'native-leads-site', $uri . '/assets/js/site.js', array(), _S_VERSION, true );
 
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
 		wp_enqueue_script( 'comment-reply' );
 	}
 }
 add_action( 'wp_enqueue_scripts', 'native_leads_scripts' );
+
+/**
+ * Apply the saved light/dark choice before first paint, on every screen.
+ */
+function native_leads_theme_boot() {
+	?>
+	<meta name="color-scheme" content="dark light">
+	<script>
+		document.documentElement.classList.add( 'js' );
+		try { var t = localStorage.getItem( 'native-leads-theme' ); if ( t ) { document.documentElement.dataset.theme = t; } } catch ( e ) {}
+	</script>
+	<?php
+}
+add_action( 'wp_head', 'native_leads_theme_boot', 0 );
 
 /**
  * Implement the Custom Header feature.
@@ -163,6 +182,11 @@ require get_template_directory() . '/inc/template-tags.php';
  * Functions which enhance the theme by hooking into WordPress.
  */
 require get_template_directory() . '/inc/template-functions.php';
+
+/**
+ * Leads dashboard: data queries, access and CSV export.
+ */
+require get_template_directory() . '/inc/leads.php';
 
 /**
  * Customizer additions.

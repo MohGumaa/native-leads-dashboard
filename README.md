@@ -1,70 +1,50 @@
-[![Build Status](https://travis-ci.org/Automattic/_s.svg?branch=master)](https://travis-ci.org/Automattic/_s)
+# Native Leads
 
-_s
-===
+A WordPress theme that gives your team a private **leads hub** for the [native-leads landing pages](https://github.com/MohGumaa/native-leads), with a matching public site. It is based on the [Leadora](https://github.com/MohGumaa/leadora-dashboard) theme and [Underscores](https://underscores.me/).
 
-Hi. I'm a starter theme called `_s`, or `underscores`, if you like. I'm a theme meant for hacking so don't use me as a Parent Theme. Instead try turning me into the next, most awesome, WordPress theme out there. That's what I'm here for.
+## What it reads
 
-My ultra-minimal CSS might make me look like theme tartare but that means less stuff to get in your way when you're designing your awesome theme. Here are some of the other more interesting things you'll find here:
+The landing pages (`global`, `invest`, `prospect`…) save every sign-up to the **`wpcq_leads`** table, using the Affiliate API column names (`FirstName`, `Email`, `Phone`, `Country`, `Source`, `UtmSource`, `UtmCampaign`, `Description`, `CrmStatus`, `CreatedDate`…). The theme reads that table directly through `$wpdb`. It doesn't need a sync step or a plugin.
 
-* A modern workflow with a pre-made command-line interface to turn your project into a more pleasant experience.
-* A just right amount of lean, well-commented, modern, HTML5 templates.
-* A custom header implementation in `inc/custom-header.php`. Just add the code snippet found in the comments of `inc/custom-header.php` to your `header.php` template.
-* Custom template tags in `inc/template-tags.php` that keep your templates clean and neat and prevent code duplication.
-* Some small tweaks in `inc/template-functions.php` that can improve your theming experience.
-* A script at `js/navigation.js` that makes your menu a toggled dropdown on small screens (like your phone), ready for CSS artistry. It's enqueued in `functions.php`.
-* 2 sample layouts in `sass/layouts/` made using CSS Grid for a sidebar on either side of your content. Just uncomment the layout of your choice in `sass/style.scss`.
-Note: `.no-sidebar` styles are automatically loaded.
-* Smartly organized starter CSS in `style.css` that will help you to quickly get your design off the ground.
-* Full support for `WooCommerce plugin` integration with hooks in `inc/woocommerce.php`, styling override woocommerce.css with product gallery features (zoom, swipe, lightbox) enabled.
-* Licensed under GPLv2 or later. :) Use it to make something cool.
+- The table name does not follow the WordPress prefix (`wp_`). To use a different table:
 
-Installation
----------------
+  ```php
+  add_filter( 'native_leads_leads_table', fn() => 'my_leads' );
+  ```
 
-### Requirements
+- `Description` (`Age: 34 | Occupation: Engineer | Contact: whatsapp`) is split into age, occupation and preferred contact.
+- `CreatedDate` is written by MySQL, so "today" and "last 7 days" are worked out with the database's own clock (`SELECT NOW()`), not the WordPress timezone.
 
-`_s` requires the following dependencies:
+## Dashboard
 
-- [Node.js](https://nodejs.org/)
-- [Composer](https://getcomposer.org/)
+Create a page (e.g. "Dashboard"), choose the **Leads Dashboard** template and publish it.
 
-### Quick Start
+- **Sidebar**: overview and leads links, CSV export, and every landing page with its count (click one to filter).
+- **Header**: a date range (all time, today, yesterday, 7 / 30 days, this month, custom) that applies to everything.
+- **KPIs**: leads in range, today vs yesterday, last 7 days vs the week before, and the CRM delivery rate with a link to leads that need attention.
+- **Leads per day**: an area chart with exact counts on hover.
+- **CRM delivery**: delivered / pending / failed / not sent, each one a filter.
+- **Breakdowns**: traffic sources (`utm_source`, or Direct), top campaigns, and countries. Click a row to filter.
+- **Table**: search (press `/`), filters for landing page, traffic, country and CRM status, sorting and paging. On phones each row becomes a card.
+- **Lead drawer**: contact, profile, the full UTM trail, spcid, referrer, CRM attempts and the CRM's last answer. The Call / WhatsApp / Email buttons highlight the method the lead asked for.
+- **CSV export**: exports the filtered leads in UTF-8 with a BOM, so Arabic shows correctly in Excel. It is protected against formula injection.
 
-Clone or download this repository, change its name to something else (like, say, `megatherium-is-awesome`), and then you'll need to do a six-step find and replace on the name in all the templates.
+**Access**: administrators always get in. To let another role in, give it the `native_leads_view_leads` capability (e.g. with the Members plugin). The page is never indexed or cached.
 
-1. Search for `'_s'` (inside single quotations) to capture the text domain and replace with: `'megatherium-is-awesome'`.
-2. Search for `_s_` to capture all the functions names and replace with: `megatherium_is_awesome_`.
-3. Search for `Text Domain: _s` in `style.css` and replace with: `Text Domain: megatherium-is-awesome`.
-4. Search for <code>&nbsp;_s</code> (with a space before it) to capture DocBlocks and replace with: <code>&nbsp;Megatherium_is_Awesome</code>.
-5. Search for `_s-` to capture prefixed handles and replace with: `megatherium-is-awesome-`.
-6. Search for `_S_` (in uppercase) to capture constants and replace with: `MEGATHERIUM_IS_AWESOME_`.
+## Design
 
-Then, update the stylesheet header in `style.css`, the links in `footer.php` with your own information and rename `_s.pot` from `languages` folder to use the theme's slug. Next, update or delete this readme.
+Deep ink with a mint accent, taken from the `invest` landing page. It has light and dark modes and remembers each viewer's choice. Fonts are Inter, Tajawal (Arabic) and JetBrains Mono.
 
-### Setup
+| File | Purpose |
+| --- | --- |
+| `inc/leads.php` | Queries, filters, breakdowns, CSV export, access rules |
+| `page-templates/dashboard.php` | The "Leads Dashboard" page template |
+| `template-parts/dashboard/` | Sign-in, no-access and the dashboard screen |
+| `assets/css/base.css` | Design tokens (light/dark), buttons, badges, brand |
+| `assets/css/dashboard.css`, `assets/js/dashboard.js` | Dashboard styles and behaviour |
+| `assets/css/site.css`, `assets/js/site.js` | Public site |
+| `front-page.php` | Public introduction page |
 
-To start using all the tools that come with `_s`  you need to install the necessary Node.js and Composer dependencies :
+## License
 
-```sh
-$ composer install
-$ npm install
-```
-
-### Available CLI commands
-
-`_s` comes packed with CLI commands tailored for WordPress theme development :
-
-- `composer lint:wpcs` : checks all PHP files against [PHP Coding Standards](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/php/).
-- `composer lint:php` : checks all PHP files for syntax errors.
-- `composer make-pot` : generates a .pot file in the `languages/` directory.
-- `npm run compile:css` : compiles SASS files to css.
-- `npm run compile:rtl` : generates an RTL stylesheet.
-- `npm run watch` : watches all SASS files and recompiles them to css when they change.
-- `npm run lint:scss` : checks all SASS files against [CSS Coding Standards](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/).
-- `npm run lint:js` : checks all JavaScript files against [JavaScript Coding Standards](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/javascript/).
-- `npm run bundle` : generates a .zip archive for distribution, excluding development and system files.
-
-Now you're ready to go! The next step is easy to say, but harder to do: make an awesome WordPress theme. :)
-
-Good luck!
+GPL v2 or later. Based on Underscores, (C) 2012-2020 Automattic, Inc.

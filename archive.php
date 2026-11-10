@@ -1,6 +1,6 @@
 <?php
 /**
- * The template for displaying archive pages
+ * The template for archive pages: categories, tags, authors and dates.
  *
  * @link https://developer.wordpress.org/themes/basics/template-hierarchy/
  *
@@ -8,44 +8,60 @@
  */
 
 get_header();
+
+if ( is_category() ) {
+	$native_leads_kind = __( 'Category', 'native-leads' );
+} elseif ( is_tag() ) {
+	$native_leads_kind = __( 'Tag', 'native-leads' );
+} elseif ( is_author() ) {
+	$native_leads_kind = __( 'Author', 'native-leads' );
+} elseif ( is_date() ) {
+	$native_leads_kind = __( 'Archive', 'native-leads' );
+} else {
+	$native_leads_kind = __( 'Collection', 'native-leads' );
+}
 ?>
 
 	<main id="primary" class="site-main">
 
-		<?php if ( have_posts() ) : ?>
+		<header class="page-hero">
+			<div class="container">
+				<p class="eyebrow"><?php echo esc_html( $native_leads_kind ); ?></p>
+				<h1 class="page-hero__title"><?php echo wp_kses_post( get_the_archive_title() ); ?></h1>
+				<?php the_archive_description( '<div class="page-hero__lead muted">', '</div>' ); ?>
+				<?php if ( have_posts() ) : ?>
+					<p class="page-hero__count">
+						<?php
+						/* translators: %s: number of posts */
+						echo esc_html( sprintf( _n( '%s post', '%s posts', (int) $wp_query->found_posts, 'native-leads' ), number_format_i18n( $wp_query->found_posts ) ) );
+						?>
+					</p>
+				<?php endif; ?>
+			</div>
+		</header>
 
-			<header class="page-header">
-				<?php
-				the_archive_title( '<h1 class="page-title">', '</h1>' );
-				the_archive_description( '<div class="archive-description">', '</div>' );
-				?>
-			</header><!-- .page-header -->
+		<div class="container section section--tight">
+			<?php if ( have_posts() ) : ?>
 
-			<?php
-			/* Start the Loop */
-			while ( have_posts() ) :
-				the_post();
+				<div class="post-grid">
+					<?php
+					while ( have_posts() ) :
+						the_post();
+						get_template_part( 'template-parts/content', get_post_type() );
+					endwhile;
+					?>
+				</div>
 
-				/*
-				 * Include the Post-Type-specific template for the content.
-				 * If you want to override this in a child theme, then include a file
-				 * called content-___.php (where ___ is the Post Type name) and that will be used instead.
-				 */
-				get_template_part( 'template-parts/content', get_post_type() );
+				<?php native_leads_pagination(); ?>
 
-			endwhile;
+			<?php else : ?>
 
-			the_posts_navigation();
+				<?php get_template_part( 'template-parts/content', 'none' ); ?>
 
-		else :
-
-			get_template_part( 'template-parts/content', 'none' );
-
-		endif;
-		?>
+			<?php endif; ?>
+		</div>
 
 	</main><!-- #main -->
 
 <?php
-get_sidebar();
 get_footer();
